@@ -202,35 +202,17 @@ def QRGMM_xstar(x,k): # QRGMM online algorithm: input specified covariates (1*(d
     return q
 ```
 
-## 7. Design Philosophy
-
-This repository intentionally:
-
-* avoids heavy object-oriented encapsulation;
-
-* documents implementation details that matter in practice;
-
-* prioritizes **clarity, extensibility, and reproducibility**.
-
-This design allows users to:
-
-* plug QRGMM into new simulators with minimal effort;
-
-* modify basis functions, quantile grids, or sampling schemes;
-
-* benchmark QRGMM fairly against modern deep generative models.
-
-## 8. Reproducibility
+## 7. Reproducibility
 
 All experimental results reported in the paper can be reproduced using this repository. Random seeds are fixed throughout, and all figures and tables are generated via documented Jupyter notebooks.
 
-## 9. Reference
+## 8. Reference
 
 If you use this codebase, please cite:
 
 > Hong L J, Hou Y, Zhang Q, et al. Learning to simulate: Generative metamodeling via quantile regression[J]. arXiv preprint arXiv:2311.17797, 2023.
 
-## 10. Contact
+## 9. Contact
 
 For questions, suggestions, or bug reports, please contact:
 
