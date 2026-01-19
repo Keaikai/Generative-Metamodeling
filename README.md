@@ -6,13 +6,13 @@ The primary goal of this codebase is to make QRGMM easy to use, easy to adapt, a
 
 ## 1. What is QRGMM?
 
-QRGMM is a generative metamodeling framework for learning **conditional output distributions** of complex stochastic simulators using **quantile regression**, with the goal of building a fast **“simulator of a simulator.”** Given a dataset ${x\_i, y\_i}\_{i=1}^{n}$, QRGMM approximates the conditional distribution $Y \mid X = x$ by:
+QRGMM is a generative metamodeling framework for learning **conditional output distributions** of complex stochastic simulators using **quantile regression**, with the goal of building a fast **“simulator of a simulator.”** Given a dataset $\{x_i, y_i\}_{i=1}^{n}$, QRGMM approximates the conditional distribution $Y \mid X = x$ by:
 
-1. **Fitting conditional quantile models** on a grid of quantile levels ${\tau\_j \coloneqq j/m: j=1,\ldots,m-1}$ via quantile regression;
+1. **Fitting conditional quantile models** on a grid of quantile levels $\{\tau_j \coloneqq j/m: j=1,\ldots,m-1\}$ via quantile regression;
 
-2. **Constructing an approximate conditional quantile function** ($\widehat{Q}(\tau \mid x)$) by **linearly interpolating** between the fitted quantile values across adjacent grid points;
+2. **Constructing an approximate conditional quantile function** $\widehat{Q}(\tau \mid x)$ by **linearly interpolating** between the fitted quantile values across adjacent grid points;
 
-3. **Generating samples via inverse transform sampling** by **plugging in uniform random variables** ($u \sim \mathrm{Unif}(0,1)$) and outputting ($\hat{y} = \widehat{Q}(u \mid x)$), which enables fast online conditional sample generation.
+3. **Generating samples via inverse transform sampling** by **plugging in uniform random variables** $u \sim \mathrm{Unif}(0,1)$ and outputting $\hat{y} = \widehat{Q}(u \mid x)$, which enables fast online conditional sample generation.
 
 Key characteristics:
 
@@ -135,7 +135,7 @@ A key focus of this codebase is **fast online sample generation**, which is crit
 
 The online QRGMM sampling algorithm is implemented using **pure matrix operations**, avoiding explicit `for` loops and `if–else` branching. Given a batch of covariates ($X \in \mathbb{R}^{k \times d}$), all conditional observations are generated simultaneously.
 
-A key trick is to map uniform random variables directly to quantile indices via integer division. For a quantile grid with spacing $\Delta\tau$, the enclosing quantile index is computed as $j = \lfloor u / \Delta\tau \rfloor, $which corresponds to $j = \lfloor u m \rfloor$ in the QRGMM algorithm. Linear interpolation between adjacent quantiles is then carried out entirely via matrix operations.
+A key trick is to map uniform random variables directly to quantile indices via integer division. For a quantile grid with spacing $\Delta\tau$, the enclosing quantile index is computed as $j = \left\lfloor u / \Delta\tau \right\rfloor$, which corresponds to $j = \lfloor u m \rfloor$ in the QRGMM algorithm. Linear interpolation between adjacent quantiles is then carried out entirely via matrix operations.
 
 An illustrative implementation is:
 
@@ -178,7 +178,7 @@ Quantile regression models at different quantile levels are mutually independent
 
 ### 6.4 Large-Scale Sampling for Fixed Covariates
 
-In applications where a large number of observations (e.g., $10^5 $ or more) are required for the same covariate vector $x$, an additional acceleration strategy is applied. The entire conditional quantile curve is first computed via matrix multiplication between $x$ and the quantile regression coefficient matrix. All uniform random variables are then mapped simultaneously to target observations using vectorized interpolation for conditional quantile curve instead of  quantile regression coefficient.
+In applications where a large number of observations (e.g., $10^5$ or more) are required for the same covariate vector $x$, an additional acceleration strategy is applied. The entire conditional quantile curve is first computed via matrix multiplication between $x$ and the quantile regression coefficient matrix. All uniform random variables are then mapped simultaneously to target observations using vectorized interpolation for conditional quantile curve instead of  quantile regression coefficient.
 
 This approach avoids processing each random draw of the uniform random variable individually and further improves computational efficiency.
 
