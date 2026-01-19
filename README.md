@@ -6,9 +6,9 @@ The primary goal of this codebase is to make QRGMM easy to use, easy to adapt, a
 
 ## 1. What is QRGMM?
 
-QRGMM is a generative metamodeling framework for learning **conditional output distributions** of complex stochastic simulators using **quantile regression**, with the goal of building a fast **“simulator of a simulator.”** Given a dataset $\{x_i, y_i\}_{i=1}^{n}$, QRGMM approximates the conditional distribution $Y \mid X = x$ by:
+QRGMM is a generative metamodeling framework for learning **conditional output distributions** of complex stochastic simulators using **quantile regression**, with the goal of building a fast **“simulator of a simulator.”** Given a dataset $(x_i, y_i)_{i=1}^{n}$, QRGMM approximates the conditional distribution $Y \mid X = x$ by:
 
-1. **Fitting conditional quantile models** on a grid of quantile levels $\{\tau_j \coloneqq j/m: j=1,\ldots,m-1\}$ via quantile regression;
+1. **Fitting conditional quantile models** on a grid of quantile levels $(\tau_j = j/m: j=1,\ldots,m-1)$ via quantile regression;
 
 2. **Constructing an approximate conditional quantile function** $\widehat{Q}(\tau \mid x)$ by **linearly interpolating** between the fitted quantile values across adjacent grid points;
 
@@ -105,7 +105,7 @@ Main dependencies:
 
 * joblib (parallel quantile fitting)
 
-R and MATLAB are used for specific components including quantile regression estimation and simulation procedures.
+R and MATLAB are used for specific components including quantile regression estimation and simulation procedures.
 
 ## 5. Typical Workflow
 
