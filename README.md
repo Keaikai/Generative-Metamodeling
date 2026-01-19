@@ -39,11 +39,13 @@ This codebase includes multiple QRGMM variants discussed in the paper:
 * **QRGMM-R (Rearranged QRGMM)**
   Enforces monotonicity across quantiles to eliminate quantile crossing.
 
-* **Neural-network-based QRGMM (QRNN-GMM)**
-  Uses quantile regression neural networks for high-dimensional settings.
+* **Neural-network-based QRGMM (QRNN-GMM)**&#x20;
 
-* **Multi-output QRGMM**
-  Supports vector-valued simulator outputs via joint or marginal modeling.
+  Uses quantile regression neural networks for high-dimensional and nonlinear settings.
+
+* **Multi-output QRGMM**&#x20;
+
+  Supports vector-valued simulator outputs.
 
 ## 3. Repository Structure
 
