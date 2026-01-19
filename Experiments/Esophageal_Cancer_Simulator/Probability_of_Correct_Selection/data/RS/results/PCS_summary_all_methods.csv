@@ -1,0 +1,7 @@
+Method,PCS
+TS Procedure,0.9946
+KN + Simulator,0.9952
+QRGMM,0.9858
+CWGAN,0.748
+Diffusion,0.983
+RectFlow,0.9716
