@@ -28,8 +28,13 @@ Key characteristics:
 
 This codebase includes multiple QRGMM variants discussed in the paper:
 
-* **Standard QRGMM**
-  Classical quantile-grid-based generative metamodel.
+* **Standard QRGMM**&#x20;
+
+  Classical linear quantile-regression-based generative metamodel.
+
+* **Basis-funtion-based QRGMM**
+
+  Linear quantile-regression-based generative metamodel with basis function.
 
 * **QRGMM-R (Rearranged QRGMM)**
   Enforces monotonicity across quantiles to eliminate quantile crossing.
@@ -78,7 +83,7 @@ QRGMM/
 ├── Vanilla_Python/
 ├── Basis_Function_Python/
 ├── Basis_Function_MATLAB/
-├── QRGMM_R/
+├── QRGMM_R/ # Rearranged QRGMM (QRGMM-R) 
 └── MutiOutput_NeuralNetwork/
 ```
 
