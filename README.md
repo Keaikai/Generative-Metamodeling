@@ -28,24 +28,15 @@ Key characteristics:
 
 This codebase includes multiple QRGMM variants discussed in the paper:
 
-* **Standard QRGMM**&#x20;
+* **Standard QRGMM** Classical linear quantile-regression-based generative metamodel.
 
-  Classical linear quantile-regression-based generative metamodel.
+* **Basis-funtion-based QRGMM** Linear quantile-regression-based generative metamodel with basis function.
 
-* **Basis-funtion-based QRGMM**
+* **QRGMM-R (Rearranged QRGMM)** Enforces monotonicity across quantiles to eliminate quantile crossing.
 
-  Linear quantile-regression-based generative metamodel with basis function.
+* **Neural-network-based QRGMM (QRNN-GMM)** Uses quantile regression neural networks for high-dimensional and nonlinear settings.
 
-* **QRGMM-R (Rearranged QRGMM)**
-  Enforces monotonicity across quantiles to eliminate quantile crossing.
-
-* **Neural-network-based QRGMM (QRNN-GMM)**&#x20;
-
-  Uses quantile regression neural networks for high-dimensional and nonlinear settings.
-
-* **Multi-output QRGMM**&#x20;
-
-  Supports vector-valued simulator outputs.
+* **Multi-output QRGMM** Supports vector-valued simulator outputs.
 
 ## 3. Repository Structure
 
