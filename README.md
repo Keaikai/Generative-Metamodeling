@@ -206,13 +206,11 @@ In QRNN-based QRGMM, especially in the **multi-output setting**, a major computa
 
 
 
-This limitation persists even in the most favorable case where all samples share the same covariates x. While a single precomputed quantile curve can be reused for the first output dimension, once the first output $(\hat{y}_{1,k})_{k=1}^n$ is generated, the conditioning sets $(x, \hat{y}_{1,k})_{k=1}^n$ become sample-specific. As a result, the fixed-$x$ acceleration strategy no longer applies to subsequent output dimensions, and quantile evaluations can no longer be shared across samples.
+This limitation persists even in the most favorable case where all samples share the same covariates x. While a single precomputed quantile curve can be reused for the first output dimension, once the first output vector $(\hat{y}_{1,k} : k = 1,\ldots,n)$ is generated, the conditioning sets $((x, \hat{y}_{1,k}) : k = 1,\ldots,n) $ become sample-specific. As a result, the fixed $x$ acceleration strategy no longer applies to subsequent output dimensions, and quantile evaluations can no longer be shared across samples.
 
 
 
-Our implementation resolves this bottleneck by combining **on-demand computation** with **inverted indexing**.
-
-Instead of first evaluating the entire quantile curve, we **generate the uniform random variables ($u$) upfront** and determine, for each sample, **which two adjacent quantile levels are actually required** for interpolation. We then loop over quantile level indices and perform QRNN prediction **only on the subset of samples that require the current quantile level model**, skipping all irrelevant quantiles.
+Our implementation resolves this bottleneck by combining **on-demand computation** with **inverted indexing**. Instead of first evaluating the entire quantile curve, we **generate the uniform random variables ($u$) upfront** and determine, for each sample, **which two adjacent quantile levels are actually required** for interpolation. We then loop over quantile level indices and perform QRNN prediction **only on the subset of samples that require the current quantile level model**, skipping all irrelevant quantiles.
 
 
 
