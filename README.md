@@ -206,7 +206,7 @@ In QRNN-based QRGMM, especially in the **multi-output setting**, a major computa
 
 
 
-This limitation persists even in the most favorable case where all samples share the same covariates x. While a single precomputed quantile curve can be reused for the first output dimension, once the first output vector $(\hat{y}_{1,k} : k = 1,\ldots,n)$ is generated, the conditioning sets $((x, \hat{y}_{1,k}) : k = 1,\ldots,n) $ become sample-specific. As a result, the fixed $x$ acceleration strategy no longer applies to subsequent output dimensions, and quantile evaluations can no longer be shared across samples.
+This limitation persists even in the most favorable case where all samples share the same covariates x. While a single precomputed quantile curve can be reused for the first output dimension, once the first output vector $(y^{(1)}_k : k = 1,\ldots,n)$ is generated, the conditioning sets $((x, y^{(1)}_k) : k = 1,\ldots,n) $ become sample-specific. As a result, the fixed $x$ acceleration strategy no longer applies to subsequent output dimensions, and quantile evaluations can no longer be shared across samples.
 
 
 
