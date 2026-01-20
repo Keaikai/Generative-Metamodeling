@@ -180,7 +180,7 @@ In applications where a large number of observations (e.g., $10^5$ or more) are 
 
 This approach avoids processing each random draw of the uniform random variable individually and further improves computational efficiency.
 
-```python
+```Python
 def QRGMM_xstar(x,k): # QRGMM online algorithm: input specified covariates (1*(d+1)), output sample vector (k*1)
     
     quantile_curve=np.reshape(np.dot(nmodels[:,1:(d+2)],x.T),-1)
@@ -198,6 +198,67 @@ def QRGMM_xstar(x,k): # QRGMM online algorithm: input specified covariates (1*(d
     q2=quantile_curve_augmented[order+1]
     q=q1*(1-alpha/le)+q2*(alpha/le)
     return q
+```
+
+### 6.5 QRNN-based (Multi-output) QRGMM: On-Demand Quantile Evaluation via Inverted Indexing
+
+In QRNN-based QRGMM, especially in the **multi-output setting**, a major computational bottleneck arises from standard inverse transform sampling: to generate samples, one typically needs to **evaluate all quantile models** in order to construct the full conditional quantile curve, and then perform interpolation. Moreover, in the general setting where samples are associated with **different covariates**, each distinct conditioning input requires a separate call to `qrnn.predict()`, making it impossible to completely eliminate looping over samples or quantile levels.
+
+
+
+This limitation persists even in the most favorable case where all samples share the same covariates x. While a single precomputed quantile curve can be reused for the first output dimension, once the first output $(\hat{y}_{1,k})_{k=1}^n$ is generated, the conditioning sets $(x, \hat{y}_{1,k})_{k=1}^n$ become sample-specific. As a result, the fixed-$x$ acceleration strategy no longer applies to subsequent output dimensions, and quantile evaluations can no longer be shared across samples.
+
+
+
+Our implementation resolves this bottleneck by combining **on-demand computation** with **inverted indexing**.
+
+Instead of first evaluating the entire quantile curve, we **generate the uniform random variables ($u$) upfront** and determine, for each sample, **which two adjacent quantile levels are actually required** for interpolation. We then loop over quantile level indices and perform QRNN prediction **only on the subset of samples that require the current quantile level model**, skipping all irrelevant quantiles.
+
+
+
+Concretely, samples are grouped (“bucketed”) according to their lower and upper quantile indices, and `qrnn.predict()` is called **once per quantile level on a batched subset**, rather than once per sample. As a result, each sample is passed through the QRNN **at most twice** (lower and upper bounds), rather than through all ($m$) quantile models. This reduces the effective prediction complexity from $O(Nm)$ to $O(N)$, while preserving exact inverse-transform-based sampling.
+
+
+
+In the special but common case where a large number of samples (e.g., $10^5$) are generated for the same covariate ($x$), we further accelerate sampling by **precomputing the entire quantile curve once** and mapping all $u \sim \mathrm{Unif}(0,1)$ to samples via pure indexing and linear interpolation. This requires only $O(m)$ QRNN evaluations for a fixed $x$, with the remaining operations fully vectorized.
+
+
+
+```Python
+predicting_x0 <- function(testx, fitmodel){
+  ntestx <- nrow(testx)
+  u <- runif(ntestx)
+  low_ind <- pmax(1, u%/%interval)
+  up_ind <- pmin(ntau, u%/%interval + 1)
+  weight <- (u %% interval) / interval
+  low_geny <- matrix(0, ntestx, 1)
+  up_geny <- matrix(0, ntestx, 1)
+  testx0 <- matrix(testx[1, ], 1, ncol(testx))
+  quantile_curve=matrix(0,ntau,1)
+  for(i in 1:ntau){
+    quantile_curve[i]=qrnn.predict(testx0,fitmodel[[i]])
+  }
+  low_geny <- quantile_curve[low_ind]
+  up_geny <- quantile_curve[up_ind]
+  geny <- low_geny + weight * (up_geny - low_geny)
+  return(geny)
+}
+
+predicting <- function(testx, fitmodel){
+  ntestx <- nrow(testx)
+  u <- runif(ntestx)
+  low_ind <- pmax(1, u%/%interval)
+  up_ind <- pmin(ntau, u%/%interval + 1)
+  weight <- (u %% interval) / interval
+  low_geny <- matrix(0, ntestx, 1)
+  up_geny <- matrix(0, ntestx, 1)
+  for(i in 1:ntau){
+    low_geny[which(low_ind == i)] <- qrnn.predict(testx[which(low_ind == i),],fitmodel[[i]])
+    up_geny[which(up_ind == i)] <- qrnn.predict(testx[which(up_ind == i),],fitmodel[[i]])
+  }
+  geny <- low_geny + weight * (up_geny - low_geny)
+  return(geny)
+}
 ```
 
 ## 7. Reproducibility
