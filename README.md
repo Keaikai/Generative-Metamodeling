@@ -119,8 +119,8 @@ A minimal QRGMM workflow consists of:
 
 Conceptually:
 
-```
-Simulator → Quantile Regression → Quantile Grid → Fast Sampling
+```Python
+Simulator → Quantile Regression → Quantile Coefficients → Fast Sampling
 ```
 
 Both Python and MATLAB implementations follow this same logic, making the framework easy to understand and modify.
@@ -204,21 +204,13 @@ def QRGMM_xstar(x,k): # QRGMM online algorithm: input specified covariates (1*(d
 
 In QRNN-based QRGMM, especially in the **multi-output setting**, a major computational bottleneck arises from standard inverse transform sampling: to generate samples, one typically needs to **evaluate all quantile models** in order to construct the full conditional quantile curve, and then perform interpolation. Moreover, in the general setting where samples are associated with **different covariates**, each distinct conditioning input and distinct quantile level may require a separate call to `qrnn.predict()`, making it impossible to completely eliminate looping over samples or quantile levels.
 
-
-
 This limitation persists even in the most favorable case where all samples share the same covariates x. While a single precomputed quantile curve can be reused for the first output dimension, once the first output vector $(y^{(1)}_k : k = 1,\ldots,n)$ is generated, the conditioning sets ($(x, y^{(1)}_k) : k = 1,\ldots,n$) become sample-specific. As a result, the fixed $x$ acceleration strategy no longer applies to subsequent output dimensions, and quantile evaluations can no longer be shared across samples.
 
-
-
 Our implementation resolves this bottleneck by combining **on-demand computation** with **inverted indexing**. Instead of first evaluating the entire quantile curve, we **generate the uniform random variables ($u$) upfront** and determine, for each sample, **which two adjacent quantile levels are actually required** for interpolation. We then loop over quantile level indices and perform QRNN prediction **only on the subset of samples that require the current quantile level model**, skipping all irrelevant quantiles.
-
-
 
 Concretely, samples are grouped (“bucketed”) according to their lower and upper quantile level indices. For each sample, only the two adjacent quantile models (lower and upper bounds) are required for interpolation; thus, each sample is passed through the QRNN **at most twice**, rather than through all $m$ quantile models. This immediately reduces the algorithmic prediction complexity from $O(Nm)$ to $O(N)$.
 
 Moreover, because `qrnn.predict()` can efficiently evaluate the **same quantile level for a batch of different covariates** in a single call, QRNN predictions are performed **once per quantile level on a batched subset**, rather than once per sample. As a result, the only remaining explicit loop is over the $m$ quantile levels, not over the $N$ samples, yielding an effective computational cost on the order of $O(m)$ batched forward passes, while preserving exact inverse-transform-based sampling.
-
-
 
 In the special but common case where a large number of samples (e.g., $10^5$) are generated for the same covariate $x$, we apply the acceleration strategy to the **first output dimension** by **precomputing the entire quantile curve once** and mapping all $u \sim \mathrm{Unif}(0,1)$ to samples via pure indexing and linear interpolation.  For subsequent output dimensions in the multi-output setting, the conditioning sets become sample-specific, and this fixed $x$ acceleration is no longer applicable. In these cases, sampling relies on the on-demand, index-based batching strategy described above.
 
